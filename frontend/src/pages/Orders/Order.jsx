@@ -59,11 +59,18 @@ const Order = () => {
   function onApprove(data, actions) {
     return actions.order.capture().then(async function (details) {
       try {
+        if (!details || !details.payer || !details.payer.email_address) {
+          throw new Error("Payment details are incomplete or missing.");
+        }
+
+        console.log("Payment Details:", details); // Log details for debugging
+
         await payOrder({ orderId, details });
         refetch();
-        toast.success("Đơn hàng đã được thanh toán");
+        toast.success("Order is paid");
       } catch (error) {
-        toast.error(error?.data?.message || error.message);
+        console.error("Payment approval error:", error); // Log error details
+        toast.error(error?.data?.message || error.message || "Payment failed.");
       }
     });
   }
@@ -87,6 +94,33 @@ const Order = () => {
     refetch();
   };
 
+  const handleCashPayment = async () => {
+    try {
+      const paymentDetails = {
+        status: "COMPLETED",
+        method: "Cash",
+        payer: {
+          email_address: "cash_payment@example.com", // Mock email for cash payments
+        },
+      };
+      console.log("Cash Payment Details:", paymentDetails); // Log the request payload for debugging
+
+      const response = await payOrder({ orderId, details: paymentDetails }).unwrap();
+      console.log("Server Response:", response); // Log the server response for debugging
+
+      refetch();
+      toast.success("Order is marked as paid with Cash");
+    } catch (error) {
+      console.error("Cash payment failed:", error); // Log error details
+      if (error?.data) {
+        console.error("Server Error Data:", error.data); // Log server error details
+      }
+      toast.error(
+        error?.data?.message || error.message || "Failed to mark order as paid with Cash. Please try again."
+      );
+    }
+  };
+
   return isLoading ? (
     <Loader />
   ) : error ? (
@@ -96,17 +130,17 @@ const Order = () => {
       <div className="md:w-2/3 pr-4">
         <div className="border gray-300 mt-5 pb-4 mb-5">
           {order.orderItems.length === 0 ? (
-            <Messsage>Đơn hàng trống</Messsage>
+            <Messsage>Order is empty</Messsage>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-[80%]">
                 <thead className="border-b-2">
                   <tr>
-                    <th className="p-2">Hình ảnh</th>
-                    <th className="p-2">Sản phẩm</th>
-                    <th className="p-2 text-center">Số lượng</th>
-                    <th className="p-2">Giá mỗi sản phẩm</th>
-                    <th className="p-2">Tổng</th>
+                    <th className="p-2">Image</th>
+                    <th className="p-2">Product</th>
+                    <th className="p-2 text-center">Quantity</th>
+                    <th className="p-2">Unit Price</th>
+                    <th className="p-2">Total</th>
                   </tr>
                 </thead>
 
@@ -126,9 +160,9 @@ const Order = () => {
                       </td>
 
                       <td className="p-2 text-center">{item.qty}</td>
-                      <td className="p-2 text-center">{item.price}₫</td>
+                      <td className="p-2 text-center">{item.price}</td>
                       <td className="p-2 text-center">
-                        {item.qty * item.price}₫
+                        $ {(item.qty * item.price).toFixed(2)}
                       </td>
                     </tr>
                   ))}
@@ -141,13 +175,13 @@ const Order = () => {
 
       <div className="md:w-1/3">
         <div className="mt-5 border-gray-300 pb-4 mb-4">
-          <h2 className="text-xl font-bold mb-2">Thông tin giao hàng</h2>
+          <h2 className="text-xl font-bold mb-2">Shipping</h2>
           <p className="mb-4 mt-4">
-            <strong className="text-pink-500">Mã đơn hàng:</strong> {order._id}
+            <strong className="text-pink-500">Order:</strong> {order._id}
           </p>
 
           <p className="mb-4">
-            <strong className="text-pink-500">Tên khách hàng:</strong>{" "}
+            <strong className="text-pink-500">Name:</strong>{" "}
             {order.user.username}
           </p>
 
@@ -156,57 +190,61 @@ const Order = () => {
           </p>
 
           <p className="mb-4">
-            <strong className="text-pink-500">Địa chỉ:</strong>{" "}
-            {order.shippingAddress.address}, {order.shippingAddress.city},{" "}
+            <strong className="text-pink-500">Address:</strong>{" "}
+            {order.shippingAddress.address}, {order.shippingAddress.city}{" "}
             {order.shippingAddress.postalCode}, {order.shippingAddress.country}
           </p>
 
           <p className="mb-4">
-            <strong className="text-pink-500">Phương thức:</strong>{" "}
+            <strong className="text-pink-500">Method:</strong>{" "}
             {order.paymentMethod}
           </p>
 
           {order.isPaid ? (
-            <Messsage variant="success">
-              Đã thanh toán vào {order.paidAt}
-            </Messsage>
+            <Messsage variant="success">Paid on {order.paidAt}</Messsage>
           ) : (
-            <Messsage variant="danger">Chưa thanh toán</Messsage>
+            <Messsage variant="danger">Not paid</Messsage>
           )}
         </div>
 
-        <h2 className="text-xl font-bold mb-2 mt-[3rem]">Tóm tắt đơn hàng</h2>
+        <h2 className="text-xl font-bold mb-2 mt-[3rem]">Order Summary</h2>
         <div className="flex justify-between mb-2">
-          <span>Sản phẩm</span>
-          <span>{order.itemsPrice}₫</span>
+          <span>Items</span>
+          <span>$ {order.itemsPrice}</span>
         </div>
         <div className="flex justify-between mb-2">
-          <span>Phí vận chuyển</span>
-          <span>{order.shippingPrice}₫</span>
+          <span>Shipping</span>
+          <span>$ {order.shippingPrice}</span>
         </div>
         <div className="flex justify-between mb-2">
-          <span>Thuế</span>
-          <span>{order.taxPrice}₫</span>
+          <span>Tax</span>
+          <span>$ {order.taxPrice}</span>
         </div>
         <div className="flex justify-between mb-2">
-          <span>Tổng cộng</span>
-          <span>{order.totalPrice}₫</span>
+          <span>Total</span>
+          <span>$ {order.totalPrice}</span>
         </div>
 
         {!order.isPaid && (
           <div>
-            {loadingPay && <Loader />}{" "}
-            {isPending ? (
+            {loadingPay && <Loader />}
+            {order.paymentMethod === "Cash" ? (
+              <button
+                type="button"
+                className="bg-green-500 text-white w-full py-2"
+                onClick={handleCashPayment}
+              >
+                Mark as Paid (Cash)
+              </button>
+            ) : isPending ? (
               <Loader />
             ) : (
               <div>
-                <div>
-                  <PayPalButtons
-                    createOrder={createOrder}
-                    onApprove={onApprove}
-                    onError={onError}
-                  ></PayPalButtons>
-                </div>
+                <PayPalButtons
+                  createOrder={createOrder}
+                  onApprove={onApprove}
+                  onError={onError}
+                ></PayPalButtons>
               </div>
             )}
           </div>
@@ -220,7 +258,7 @@ const Order = () => {
               className="bg-pink-500 text-white w-full py-2"
               onClick={deliverHandler}
             >
-              Đánh dấu đã giao hàng
+              Mark As Delivered
             </button>
           </div>
         )}

@@ -50,7 +50,7 @@ const AdminProductUpdate = () => {
       setCategory(productData.category?._id);
       setQuantity(productData.quantity);
       setBrand(productData.brand);
-      setImage(productData.image);
+      setImage(productData.image.replace(/\\/g, "/")); // Normalize image path
     }
   }, [productData]);
 

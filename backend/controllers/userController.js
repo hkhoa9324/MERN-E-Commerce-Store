@@ -36,9 +36,6 @@ const createUser = asyncHandler(async (req, res) => {
 const loginUser = asyncHandler(async (req, res) => {
   const { email, password } = req.body;
 
-  console.log(email);
-  console.log(password);
-
   const existingUser = await User.findOne({ email });
 
   if (existingUser) {
@@ -59,6 +56,8 @@ const loginUser = asyncHandler(async (req, res) => {
       return;
     }
   }
+
+  res.status(401).json({ message: "Invalid email or password" }); // Added missing response
 });
 
 const logoutCurrentUser = asyncHandler(async (req, res) => {

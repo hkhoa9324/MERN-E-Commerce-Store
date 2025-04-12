@@ -33,13 +33,13 @@ const Register = () => {
     e.preventDefault();
 
     if (password !== confirmPassword) {
-      toast.error("Mật khẩu không khớp");
+      toast.error("Passwords do not match");
     } else {
       try {
         const res = await register({ username, email, password }).unwrap();
         dispatch(setCredentials({ ...res }));
         navigate(redirect);
-        toast.success("Đăng ký tài khoản thành công");
+        toast.success("User successfully registered");
       } catch (err) {
         console.log(err);
         toast.error(err.data.message);
@@ -50,7 +50,7 @@ const Register = () => {
   return (
     <section className="pl-[10rem] flex flex-wrap">
       <div className="mr-[4rem] mt-[5rem]">
-        <h1 className="text-2xl font-semibold mb-4">Đăng Ký</h1>
+        <h1 className="text-2xl font-semibold mb-4">Register</h1>
 
         <form onSubmit={submitHandler} className="container w-[40rem]">
           <div className="my-[2rem]">
@@ -58,13 +58,13 @@ const Register = () => {
               htmlFor="name"
               className="block text-sm font-medium text-white"
             >
-              Tên người dùng
+              Name
             </label>
             <input
               type="text"
               id="name"
               className="mt-1 p-2 border rounded w-full"
-              placeholder="Nhập tên người dùng"
+              placeholder="Enter name"
               value={username}
               onChange={(e) => setName(e.target.value)}
             />
@@ -75,13 +75,13 @@ const Register = () => {
               htmlFor="email"
               className="block text-sm font-medium text-white"
             >
-              Địa chỉ Email
+              Email Address
             </label>
             <input
               type="email"
               id="email"
               className="mt-1 p-2 border rounded w-full"
-              placeholder="Nhập địa chỉ email"
+              placeholder="Enter email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
             />
@@ -92,13 +92,13 @@ const Register = () => {
               htmlFor="password"
               className="block text-sm font-medium text-white"
             >
-              Mật khẩu
+              Password
             </label>
             <input
               type="password"
               id="password"
               className="mt-1 p-2 border rounded w-full"
-              placeholder="Nhập mật khẩu"
+              placeholder="Enter password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
             />
@@ -109,13 +109,13 @@ const Register = () => {
               htmlFor="confirmPassword"
               className="block text-sm font-medium text-white"
             >
-              Xác nhận mật khẩu
+              Confirm Password
             </label>
             <input
               type="password"
               id="confirmPassword"
               className="mt-1 p-2 border rounded w-full"
-              placeholder="Nhập lại mật khẩu"
+              placeholder="Confirm password"
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
             />
@@ -126,7 +126,7 @@ const Register = () => {
             type="submit"
             className="bg-pink-500 text-white px-4 py-2 rounded cursor-pointer my-[1rem]"
           >
-            {isLoading ? "Đang đăng ký..." : "Đăng Ký"}
+            {isLoading ? "Registering..." : "Register"}
           </button>
 
           {isLoading && <Loader />}
@@ -134,19 +134,19 @@ const Register = () => {
 
         <div className="mt-4">
           <p className="text-white">
-            Bạn đã có tài khoản?{" "}
+            Already have an account?{" "}
             <Link
               to={redirect ? `/login?redirect=${redirect}` : "/login"}
               className="text-pink-500 hover:underline"
             >
-              Đăng Nhập
+              Login
             </Link>
           </p>
         </div>
       </div>
       <img
         src="https://images.unsplash.com/photo-1576502200916-3808e07386a5?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2065&q=80"
-        alt="Hình ảnh minh họa"
+        alt=""
         className="h-[65rem] w-[59%] xl:block md:hidden sm:hidden rounded-lg"
       />
     </section>

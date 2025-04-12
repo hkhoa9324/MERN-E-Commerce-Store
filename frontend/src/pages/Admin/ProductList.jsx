@@ -10,8 +10,7 @@ import AdminMenu from "./AdminMenu";
 
 const ProductList = () => {
   const [image, setImage] = useState("");
-  const [imageUrl, setImageUrl] = useState(null);
-  const [imageFromUrl, setImageFromUrl] = useState(""); // New state for image URL
+  const [imageUrl, setImageUrl] = useState("");
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [price, setPrice] = useState("");
@@ -19,8 +18,8 @@ const ProductList = () => {
   const [quantity, setQuantity] = useState("");
   const [brand, setBrand] = useState("");
   const [stock, setStock] = useState(0);
-  const navigate = useNavigate();
 
+  const navigate = useNavigate();
   const [uploadProductImage] = useUploadProductImageMutation();
   const [createProduct] = useCreateProductMutation();
   const { data: categories } = useFetchCategoriesQuery();
@@ -30,7 +29,7 @@ const ProductList = () => {
 
     try {
       const productData = new FormData();
-      productData.append("image", image || imageFromUrl); // Use either uploaded image or URL
+      productData.append("image", image || imageUrl); // Dùng upload hoặc URL
       productData.append("name", name);
       productData.append("description", description);
       productData.append("price", price);
@@ -42,14 +41,14 @@ const ProductList = () => {
       const { data } = await createProduct(productData);
 
       if (data.error) {
-        toast.error("Tạo sản phẩm thất bại. Vui lòng thử lại.");
+        toast.error("Product create failed. Try Again.");
       } else {
-        toast.success(`${data.name} đã được tạo thành công`);
+        toast.success(`${data.name} is created`);
         navigate("/");
       }
     } catch (error) {
       console.error(error);
-      toast.error("Tạo sản phẩm thất bại. Vui lòng thử lại.");
+      toast.error("Product create failed. Try Again.");
     }
   };
 
@@ -61,15 +60,10 @@ const ProductList = () => {
       const res = await uploadProductImage(formData).unwrap();
       toast.success(res.message);
       setImage(res.image);
-      setImageUrl(res.image);
+      setImageUrl(res.image); // Cho hiển thị preview
     } catch (error) {
       toast.error(error?.data?.message || error.error);
     }
-  };
-
-  const handleImageUrlChange = (e) => {
-    setImageFromUrl(e.target.value);
-    setImageUrl(e.target.value); // Display the image from the URL
   };
 
   return (
@@ -77,7 +71,7 @@ const ProductList = () => {
       <div className="flex flex-col md:flex-row">
         <AdminMenu />
         <div className="md:w-3/4 p-3">
-          <div className="h-12">Tạo Sản Phẩm</div>
+          <div className="h-12 text-xl font-bold mb-3">Create Product</div>
 
           {imageUrl && (
             <div className="text-center">
@@ -85,43 +79,47 @@ const ProductList = () => {
                 src={imageUrl}
                 alt="product"
                 className="block mx-auto max-h-[200px]"
+                onError={(e) => {
+                  e.target.src = "";
+                  toast.error("Invalid image URL");
+                }}
               />
             </div>
           )}
 
+          {/* Upload file */}
           <div className="mb-3">
             <label className="border text-white px-4 block w-full text-center rounded-lg cursor-pointer font-bold py-11">
-              {image ? image.name : "Tải lên hình ảnh"}
-
+              {image ? image.name || "Image selected" : "Upload Image"}
               <input
                 type="file"
                 name="image"
                 accept="image/*"
                 onChange={uploadFileHandler}
-                className={!image ? "hidden" : "text-white"}
+                className="hidden"
               />
             </label>
           </div>
 
-          {/* New input for image URL */}
+          {/* Nhập URL ảnh */}
           <div className="mb-3">
-            <label htmlFor="imageUrl" className="block text-white font-bold mb-2">
-              Hoặc nhập URL hình ảnh
-            </label>
+            <label className="text-white block mb-2">Or Enter Image URL</label>
             <input
               type="text"
-              id="imageUrl"
-              placeholder="Nhập URL hình ảnh"
+              placeholder="https://example.com/image.jpg"
               className="p-4 mb-3 w-full border rounded-lg bg-[#101011] text-white"
-              value={imageFromUrl}
-              onChange={handleImageUrlChange}
+              value={imageUrl}
+              onChange={(e) => {
+                setImageUrl(e.target.value);
+                setImage(e.target.value);
+              }}
             />
           </div>
 
           <div className="p-3">
             <div className="flex flex-wrap">
               <div className="one">
-                <label htmlFor="name">Tên sản phẩm</label> <br />
+                <label>Name</label> <br />
                 <input
                   type="text"
                   className="p-4 mb-3 w-[30rem] border rounded-lg bg-[#101011] text-white"
@@ -129,8 +127,8 @@ const ProductList = () => {
                   onChange={(e) => setName(e.target.value)}
                 />
               </div>
-              <div className="two ml-10 ">
-                <label htmlFor="name block">Giá</label> <br />
+              <div className="two ml-10">
+                <label>Price</label> <br />
                 <input
                   type="number"
                   className="p-4 mb-3 w-[30rem] border rounded-lg bg-[#101011] text-white"
@@ -139,9 +137,10 @@ const ProductList = () => {
                 />
               </div>
             </div>
+
             <div className="flex flex-wrap">
               <div className="one">
-                <label htmlFor="name block">Số lượng</label> <br />
+                <label>Quantity</label> <br />
                 <input
                   type="number"
                   className="p-4 mb-3 w-[30rem] border rounded-lg bg-[#101011] text-white"
@@ -149,8 +148,8 @@ const ProductList = () => {
                   onChange={(e) => setQuantity(e.target.value)}
                 />
               </div>
-              <div className="two ml-10 ">
-                <label htmlFor="name block">Thương hiệu</label> <br />
+              <div className="two ml-10">
+                <label>Brand</label> <br />
                 <input
                   type="text"
                   className="p-4 mb-3 w-[30rem] border rounded-lg bg-[#101011] text-white"
@@ -159,22 +158,19 @@ const ProductList = () => {
                 />
               </div>
             </div>
-            <div>
-            <label htmlFor="" className="my-5">
-              Mô tả
-            </label>
+
+            <label>Description</label>
             <textarea
-              type="text"
               className="p-2 mb-3 bg-[#101011] border rounded-lg w-[95%] text-white"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
             ></textarea>
-            </div>
+
             <div className="flex justify-between">
               <div>
-                <label htmlFor="name block">Số lượng trong kho</label> <br />
+                <label>Count In Stock</label> <br />
                 <input
-                  type="text"
+                  type="number"
                   className="p-4 mb-3 w-[30rem] border rounded-lg bg-[#101011] text-white"
                   value={stock}
                   onChange={(e) => setStock(e.target.value)}
@@ -182,12 +178,12 @@ const ProductList = () => {
               </div>
 
               <div>
-                <label htmlFor="">Danh mục</label> <br />
+                <label>Category</label> <br />
                 <select
-                  placeholder="Chọn danh mục"
                   className="p-4 mb-3 w-[30rem] border rounded-lg bg-[#101011] text-white"
                   onChange={(e) => setCategory(e.target.value)}
                 >
+                  <option value="">Select Category</option>
                   {categories?.map((c) => (
                     <option key={c._id} value={c._id}>
                       {c.name}
@@ -201,7 +197,7 @@ const ProductList = () => {
               onClick={handleSubmit}
               className="py-4 px-10 mt-5 rounded-lg text-lg font-bold bg-pink-600"
             >
-              Tạo sản phẩm
+              Submit
             </button>
           </div>
         </div>

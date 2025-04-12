@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { FaTrash, FaEdit, FaCheck, FaTimes } from "react-icons/fa";
 import Message from "../../components/Message";
 import Loader from "../../components/Loader";
+import AdminMenu from "./AdminMenu";
 import {
   useDeleteUserMutation,
   useGetUsersQuery,
@@ -9,7 +10,7 @@ import {
 } from "../../redux/api/usersApiSlice";
 import { toast } from "react-toastify";
 // ⚠️⚠️⚠️ don't forget this ⚠️⚠️⚠️⚠️
-import AdminMenu from "./AdminMenu";
+// import AdminMenu from "./AdminMenu";
 
 const UserList = () => {
   const { data: users, refetch, isLoading, error } = useGetUsersQuery();
@@ -58,9 +59,6 @@ const UserList = () => {
   };
 
   return (
-    <div className="container xl:mx-[9rem] sm:mx-[0]">
-      <div className="flex flex-col md:flex-row">
-        <AdminMenu />    
     <div className="p-4">
       <h1 className="text-2xl font-semibold mb-4">Users</h1>
       {isLoading ? (
@@ -169,9 +167,9 @@ const UserList = () => {
           </table>
         </div>
       )}
+      <AdminMenu />
     </div>
-    </div>
-    </div>
+    
   );
 };
 

@@ -9,6 +9,8 @@ const OrderList = () => {
 
   return (
     <>
+      <AdminMenu />
+
       {isLoading ? (
         <Loader />
       ) : error ? (
@@ -17,8 +19,6 @@ const OrderList = () => {
         </Message>
       ) : (
         <table className="container mx-auto">
-          <AdminMenu />
-
           <thead className="w-full border">
             <tr className="mb-[5rem]">
               <th className="text-left pl-1">ITEMS</th>
@@ -43,15 +43,9 @@ const OrderList = () => {
                   />
                 </td>
                 <td>{order._id}</td>
-
                 <td>{order.user ? order.user.username : "N/A"}</td>
-
-                <td>
-                  {order.createdAt ? order.createdAt.substring(0, 10) : "N/A"}
-                </td>
-
+                <td>{order.createdAt ? order.createdAt.substring(0, 10) : "N/A"}</td>
                 <td>$ {order.totalPrice}</td>
-
                 <td className="py-2">
                   {order.isPaid ? (
                     <p className="p-1 text-center bg-green-400 w-[6rem] rounded-full">
@@ -63,7 +57,6 @@ const OrderList = () => {
                     </p>
                   )}
                 </td>
-
                 <td className="px-2 py-2">
                   {order.isDelivered ? (
                     <p className="p-1 text-center bg-green-400 w-[6rem] rounded-full">
@@ -75,7 +68,6 @@ const OrderList = () => {
                     </p>
                   )}
                 </td>
-
                 <td>
                   <Link to={`/order/${order._id}`}>
                     <button>More</button>

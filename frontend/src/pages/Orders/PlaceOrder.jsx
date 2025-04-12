@@ -25,7 +25,12 @@ const PlaceOrder = () => {
 
   const placeOrderHandler = async () => {
     try {
-      const res = await createOrder({
+      if (cart.cartItems.length === 0) {
+        toast.error("Your cart is empty. Please add items to your cart before placing an order.");
+        return;
+      }
+
+      const orderData = {
         orderItems: cart.cartItems,
         shippingAddress: cart.shippingAddress,
         paymentMethod: cart.paymentMethod,
@@ -33,11 +38,19 @@ const PlaceOrder = () => {
         shippingPrice: cart.shippingPrice,
         taxPrice: cart.taxPrice,
         totalPrice: cart.totalPrice,
-      }).unwrap();
+      };
+
+      console.log("Order Data:", orderData); // Log the request payload for debugging
+
+      const res = await createOrder(orderData).unwrap();
       dispatch(clearCartItems());
       navigate(`/order/${res._id}`);
     } catch (error) {
-      toast.error(error);
+      console.error("Order creation failed:", error); // Log error details
+      toast.error(
+        error?.data?.message ||
+        "Failed to place order. Please check your data and try again."
+      );
     }
   };
 
@@ -47,17 +60,17 @@ const PlaceOrder = () => {
 
       <div className="container mx-auto mt-8">
         {cart.cartItems.length === 0 ? (
-          <Message>Giỏ hàng của bạn đang trống</Message>
+          <Message>Your cart is empty</Message>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full border-collapse">
               <thead>
                 <tr>
-                  <td className="px-1 py-2 text-left align-top">Hình ảnh</td>
-                  <td className="px-1 py-2 text-left">Sản phẩm</td>
-                  <td className="px-1 py-2 text-left">Số lượng</td>
-                  <td className="px-1 py-2 text-left">Giá</td>
-                  <td className="px-1 py-2 text-left">Tổng</td>
+                  <td className="px-1 py-2 text-left align-top">Image</td>
+                  <td className="px-1 py-2 text-left">Product</td>
+                  <td className="px-1 py-2 text-left">Quantity</td>
+                  <td className="px-1 py-2 text-left">Price</td>
+                  <td className="px-1 py-2 text-left">Total</td>
                 </tr>
               </thead>
 
@@ -76,9 +89,9 @@ const PlaceOrder = () => {
                       <Link to={`/product/${item.product}`}>{item.name}</Link>
                     </td>
                     <td className="p-2">{item.qty}</td>
-                    <td className="p-2">{item.price.toFixed(2)}₫</td>
+                    <td className="p-2">{item.price.toFixed(2)}</td>
                     <td className="p-2">
-                      {((item.qty * item.price).toFixed(2))}₫
+                      $ {(item.qty * item.price).toFixed(2)}
                     </td>
                   </tr>
                 ))}
@@ -88,36 +101,41 @@ const PlaceOrder = () => {
         )}
 
         <div className="mt-8">
-          <h2 className="text-2xl font-semibold mb-5">Tóm tắt đơn hàng</h2>
+          <h2 className="text-2xl font-semibold mb-5">Order Summary</h2>
           <div className="flex justify-between flex-wrap p-8 bg-[#181818]">
             <ul className="text-lg">
               <li>
-                <span className="font-semibold mb-4">Sản phẩm:</span> {cart.itemsPrice}₫
+                <span className="font-semibold mb-4">Items:</span> $
+                {cart.itemsPrice}
               </li>
               <li>
-                <span className="font-semibold mb-4">Phí vận chuyển:</span> {cart.shippingPrice}₫
+                <span className="font-semibold mb-4">Shipping:</span> $
+                {cart.shippingPrice}
               </li>
               <li>
-                <span className="font-semibold mb-4">Thuế:</span> {cart.taxPrice}₫
+                <span className="font-semibold mb-4">Tax:</span> $
+                {cart.taxPrice}
               </li>
               <li>
-                <span className="font-semibold mb-4">Tổng cộng:</span> {cart.totalPrice}₫
+                <span className="font-semibold mb-4">Total:</span> $
+                {cart.totalPrice}
               </li>
             </ul>
 
             {error && <Message variant="danger">{error.data.message}</Message>}
 
             <div>
-              <h2 className="text-2xl font-semibold mb-4">Thông tin giao hàng</h2>
+              <h2 className="text-2xl font-semibold mb-4">Shipping</h2>
               <p>
-                <strong>Địa chỉ:</strong> {cart.shippingAddress.address},{" "}
-                {cart.shippingAddress.city}, {cart.shippingAddress.country}
+                <strong>Address:</strong> {cart.shippingAddress.address},{" "}
+                {cart.shippingAddress.city} {cart.shippingAddress.postalCode},{" "}
+                {cart.shippingAddress.country}
               </p>
             </div>
 
             <div>
-              <h2 className="text-2xl font-semibold mb-4">Phương thức thanh toán</h2>
-              <strong>Phương thức:</strong> {cart.paymentMethod}
+              <h2 className="text-2xl font-semibold mb-4">Payment Method</h2>
+              <strong>Method:</strong> {cart.paymentMethod}
             </div>
           </div>
 
@@ -127,7 +145,7 @@ const PlaceOrder = () => {
             disabled={cart.cartItems === 0}
             onClick={placeOrderHandler}
           >
-            Đặt hàng
+            Place Order
           </button>
 
           {isLoading && <Loader />}

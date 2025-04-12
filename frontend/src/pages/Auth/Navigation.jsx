@@ -50,12 +50,15 @@ const Navigation = () => {
       id="navigation-container"
     >
       <div className="flex flex-col justify-center space-y-4">
+        <h1 className="text-blue-500 text-2xl font-bold text-center mt-4">
+          BIA Tech
+        </h1>
         <Link
           to="/"
           className="flex items-center transition-transform transform hover:translate-x-2"
         >
           <AiOutlineHome className="mr-2 mt-[3rem]" size={26} />
-          <span className="hidden nav-item-name mt-[3rem]">Trang chủ</span>{" "}
+          <span className="hidden nav-item-name mt-[3rem]">HOME</span>{" "}
         </Link>
 
         <Link
@@ -63,13 +66,13 @@ const Navigation = () => {
           className="flex items-center transition-transform transform hover:translate-x-2"
         >
           <AiOutlineShopping className="mr-2 mt-[3rem]" size={26} />
-          <span className="hidden nav-item-name mt-[3rem]">Cửa hàng</span>{" "}
+          <span className="hidden nav-item-name mt-[3rem]">SHOP</span>{" "}
         </Link>
 
         <Link to="/cart" className="flex relative">
           <div className="flex items-center transition-transform transform hover:translate-x-2">
             <AiOutlineShoppingCart className="mt-[3rem] mr-2" size={26} />
-            <span className="hidden nav-item-name mt-[3rem]">Giỏ hàng</span>{" "}
+            <span className="hidden nav-item-name mt-[3rem]">Cart</span>{" "}
           </div>
 
           <div className="absolute top-9">
@@ -87,7 +90,7 @@ const Navigation = () => {
           <div className="flex justify-center items-center transition-transform transform hover:translate-x-2">
             <FaHeart className="mt-[3rem] mr-2" size={20} />
             <span className="hidden nav-item-name mt-[3rem]">
-              Yêu thích
+              Favorites
             </span>{" "}
             <FavoritesCount />
           </div>
@@ -127,7 +130,7 @@ const Navigation = () => {
         {dropdownOpen && userInfo && (
           <ul
             className={`absolute right-0 mt-2 mr-14 space-y-2 bg-white text-gray-600 ${
-              !userInfo.isAdmin ? "-top-20" : "-top-80"
+              !userInfo.isAdmin ? "-top-20" : "-top-40"
             } `}
           >
             {userInfo.isAdmin && (
@@ -145,7 +148,7 @@ const Navigation = () => {
                     to="/admin/productlist"
                     className="block px-4 py-2 hover:bg-gray-100"
                   >
-                    Sản phẩm
+                    Products
                   </Link>
                 </li>
                 <li>
@@ -153,7 +156,7 @@ const Navigation = () => {
                     to="/admin/categorylist"
                     className="block px-4 py-2 hover:bg-gray-100"
                   >
-                    Loại sản phẩm
+                    Category
                   </Link>
                 </li>
                 <li>
@@ -161,7 +164,7 @@ const Navigation = () => {
                     to="/admin/orderlist"
                     className="block px-4 py-2 hover:bg-gray-100"
                   >
-                    Đơn hàng
+                    Orders
                   </Link>
                 </li>
                 <li>
@@ -169,7 +172,7 @@ const Navigation = () => {
                     to="/admin/userlist"
                     className="block px-4 py-2 hover:bg-gray-100"
                   >
-                    Người dùng
+                    Users
                   </Link>
                 </li>
               </>
@@ -185,7 +188,7 @@ const Navigation = () => {
                 onClick={logoutHandler}
                 className="block w-full px-4 py-2 text-left hover:bg-gray-100"
               >
-                Đăng xuất
+                Logout
               </button>
             </li>
           </ul>
@@ -198,7 +201,7 @@ const Navigation = () => {
                 className="flex items-center mt-5 transition-transform transform hover:translate-x-2"
               >
                 <AiOutlineLogin className="mr-2 mt-[4px]" size={26} />
-                <span className="hidden nav-item-name">Đăng nhập</span>
+                <span className="hidden nav-item-name">LOGIN</span>
               </Link>
             </li>
             <li>
@@ -207,7 +210,7 @@ const Navigation = () => {
                 className="flex items-center mt-5 transition-transform transform hover:translate-x-2"
               >
                 <AiOutlineUserAdd size={26} />
-                <span className="hidden nav-item-name">Đăng ký</span>
+                <span className="hidden nav-item-name">REGISTER</span>
               </Link>
             </li>
           </ul>
